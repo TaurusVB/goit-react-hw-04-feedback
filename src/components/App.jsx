@@ -1,73 +1,61 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
-import Feedback from './FeedbackOptions/FeedbackOptions';
-import Statistics from './Statistics/Statistics';
-import Section from './Section/Section';
-import Notification from './Notification/Notification';
-
-const INITIAL_STATE = {
-  good: 0,
-  neutral: 0,
-  bad: 0,
-};
+import { Feedback } from './FeedbackOptions/FeedbackOptions';
+import { Statistics } from './Statistics/Statistics';
+import { Section } from './Section/Section';
+import { Notification } from './Notification/Notification';
+import { AppDiv } from './App.styled';
 
 const options = ['Good', 'Neutral', 'Bad'];
 
-export class App extends Component {
-  state = {
-    ...INITIAL_STATE,
-  };
+export const App = () => {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
 
-  countTotalFeedback = () => {
-    const { good, neutral, bad } = this.state;
+  const countTotalFeedback = () => {
     return good + neutral + bad;
   };
 
-  countPositiveFeedbackPercentage = () => {
-    const { good } = this.state;
-    return Math.round((good / this.countTotalFeedback()) * 100) || 0;
+  const countPositiveFeedbackPercentage = () => {
+    return Math.round((good / countTotalFeedback()) * 100) || 0;
   };
 
-  leaveFeedback = evt => {
-    const currentBtn = evt.target.name.toLowerCase();
-
-    this.setState(prevState => {
-      return { [currentBtn]: prevState[currentBtn] + 1 };
-    });
+  const leaveFeedback = evt => {
+    const currentBtn = evt.target.name;
+    switch (currentBtn) {
+      case 'Good':
+        setGood(prevState => prevState + 1);
+        break;
+      case 'Neutral':
+        setNeutral(prevState => prevState + 1);
+        break;
+      case 'Bad':
+        setBad(prevState => prevState + 1);
+        break;
+      default:
+        break;
+    }
   };
 
-  render() {
-    const { good, neutral, bad } = this.state;
-
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          alignItems: 'center',
-          fontSize: 40,
-          color: '#010101',
-        }}
-      >
-        {' '}
-        <Section title={'Please leave feedback'}>
-          <Feedback options={options} onLeaveFeedback={this.leaveFeedback} />
-        </Section>
-        <Section title={'Statistics'}>
-          {this.countTotalFeedback() > 0 ? (
-            <Statistics
-              good={good}
-              neutral={neutral}
-              bad={bad}
-              total={this.countTotalFeedback()}
-              positivePercentage={this.countPositiveFeedbackPercentage()}
-            />
-          ) : (
-            <Notification message="There is no feedback" />
-          )}
-        </Section>
-      </div>
-    );
-  }
-}
+  return (
+    <AppDiv>
+      <Section title={'Please leave feedback'}>
+        <Feedback options={options} onLeaveFeedback={leaveFeedback} />
+      </Section>
+      <Section title={'Statistics'}>
+        {countTotalFeedback() > 0 ? (
+          <Statistics
+            good={good}
+            neutral={neutral}
+            bad={bad}
+            total={countTotalFeedback()}
+            positivePercentage={countPositiveFeedbackPercentage()}
+          />
+        ) : (
+          <Notification message="There is no feedback" />
+        )}
+      </Section>
+    </AppDiv>
+  );
+};
